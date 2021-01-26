@@ -22,7 +22,6 @@ class data_model:
     def __init__(self, path):
         self.data_path = path
         self.reload()
-        self.country_list = self.daily_report.Country_Region.unique()
 
     def reload(self):
         """load the csv files into data frame, download the files from Github if needed"""
@@ -225,21 +224,6 @@ class data_model:
 
         return self.daily_report.sum(numeric_only=True)
 
-    def get_country_options(self):
-        """create an array of country options to be used in dropdowns
-
-        Returns:
-            array: [{"label":country1, "value":country1}, ...]
-        """
-        result = []
-        for i in range(len(self.country_list)):
-            result.append(
-                {"label": self.country_list[i], "value": self.country_list[i]}
-            )
-
-        return result
-
-
     def get_timeserie_data_by_country(self, country="all", c_type=case_type.confirmed):
         """return timeseries data by country
 
@@ -287,3 +271,21 @@ class data_model:
     def save_to_file(self):
         """save the whole data model into file"""
         pass
+    
+def get_right_panel_data(path, country, nType):
+    """
+    Retrieve all data needed
+    """
+    dm = data_model(path)
+    summary_result = dm.cumulative_filter(country)
+    summary = np.array([summary_result.Confirmed, summary_result.Recovered, summary_result.Deaths])
+    timeseries_data = dm.get_timeserie_data_by_country(country, nType)
+    
+    return summary, timeseries_data
+    
+
+def get_country_list(path):
+    dm = data_model(path)
+    country_list = np.array(dm.daily_report.Country_Region.unique())
+    return country_list
+    
