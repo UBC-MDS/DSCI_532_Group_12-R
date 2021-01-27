@@ -9,6 +9,7 @@ library(plotly)
 library(tidyverse)
 library(purrr)
 library(scales)
+library(data.table)
 
 source(here("src", "stylesheet.R"))
 source(here("src", "data_loader.R"))
@@ -61,7 +62,7 @@ rp_create_button_group <- function(){
 #' @param ntype ("Total" or "New")
 #'
 #' @return a plotly chart object
-rp_create_timeseries_chart <- function(timeseries_data, chart_title, ntype="Total"){
+rp_create_timeseries_chart <- function(timeseries_data,country, chart_title, ntype="Total"){
 
   ts_data <- timeseries_data %>% filter(type==ntype)
   p <- ggplot(ts_data) +
@@ -93,8 +94,8 @@ create_right_panel <- function(){
   deaths <- comma(total_numbers$Deaths)
   timeseries_confirmed <- get_timeseries_data_by_country(country, 1)
   timeseries_death <- get_timeseries_data_by_country(country, 2)
-  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, "Cases over time")
-  d_chart <- rp_create_timeseries_chart(timeseries_death, "Deaths over time")
+  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, country, "Cases over time")
+  d_chart <- rp_create_timeseries_chart(timeseries_death, country, "Deaths over time")
   
   right_panel <- htmlDiv(
     list(
@@ -133,8 +134,8 @@ rp_refresh <- function(country, ntype){
   deaths <- comma(total_numbers$Deaths)
   timeseries_confirmed <- get_timeseries_data_by_country(country, 1)
   timeseries_death <- get_timeseries_data_by_country(country, 2)
-  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, "Cases over time")
-  d_chart <- rp_create_timeseries_chart(timeseries_death, "Deaths over time")
+  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, country, "Cases over time")
+  d_chart <- rp_create_timeseries_chart(timeseries_death, country, "Deaths over time")
   
   list(confirmed, recovered, deaths, c_chart, d_chart)
 }

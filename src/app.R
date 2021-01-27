@@ -57,6 +57,4 @@ function(country, total_click, new_click) {
   # }
   rp_refresh(country, ntype)
 })
-
-
-app$run_server(debug = T)
+app$run_server(host = '127.0.0.1', debug=T) 
