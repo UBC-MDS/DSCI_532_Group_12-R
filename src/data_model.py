@@ -7,22 +7,15 @@ file_daily_report = "daily_report.csv"
 file_timeseries_confirmed = "time_series_covid19_confirmed_global.csv"
 file_timeseries_recovered = "time_series_covid19_recovered_global.csv"
 file_timeseries_death = "time_series_covid19_deaths_global.csv"
-
-
-class case_type:
-    all = 0
-    confirmed = 1
-    death = 2
-    recovered = 3
-
+file_timeseries_death_tidy = "timeseries_death_tidy.csv"
+file_timeseries_confirmed_tidy = "timeseries_confirmed_tidy.csv"
+file_timeseries_recovered_tidy = "timeseries_recovered_tidy.csv"
 
 class data_model:
     """handles data reading and processing"""
 
     def __init__(self, path):
         self.data_path = path
-        self.reload()
-        self.country_list = self.daily_report.Country_Region.unique()
 
     def reload(self):
         """load the csv files into data frame, download the files from Github if needed"""
@@ -34,9 +27,20 @@ class data_model:
         if m_day < today:
             # we need to re-download data
             self.__download_data(today)
-
-        # process the data
-        self.__process_data()
+             # process the data
+            self.__process_data()
+            # save the processed data under data/processed folder
+            self.__save_files()
+        else:
+            try:
+                self.__get_processed_data()
+            except:
+                # we need to re-download data
+                self.__download_data(today)
+                 # process the data
+                self.__process_data()
+                # save the processed data under data/processed folder
+                self.__save_files()
 
     def __download_data(self, date):
         """private method, used for downloading files from github of JH Uni
@@ -108,20 +112,20 @@ class data_model:
         """private method, used for reading and cleaning up data files"""
         # read the files in as data frame
         self.daily_report = pd.read_csv(self.data_path + "/" + file_daily_report)
-        self.times_series_confirmed = pd.read_csv(
+        self.timeseries_confirmed = pd.read_csv(
             self.data_path + "/" + file_timeseries_confirmed
         )
-        self.times_series_death = pd.read_csv(
+        self.timeseries_death = pd.read_csv(
             self.data_path + "/" + file_timeseries_death
         )
-        self.times_series_recovered = pd.read_csv(
+        self.timeseries_recovered = pd.read_csv(
             self.data_path + "/" + file_timeseries_recovered
         )
 
         # clean up data for timeseries_confirmed
         ## copy data
-        confirmed_df = self.times_series_confirmed.copy()
-        confirmed_df_2 = self.times_series_confirmed.copy()
+        confirmed_df = self.timeseries_confirmed.copy()
+        confirmed_df_2 = self.timeseries_confirmed.copy()
         ## summation
         confirmed_concat = confirmed_df[confirmed_df["Province/State"].notna()]["Country/Region"].unique()
         for country in confirmed_concat:
@@ -143,12 +147,12 @@ class data_model:
         confirmed_df = confirmed_df[confirmed_df["Province/State"].isna()].drop(columns=["Province/State", "Unnamed: 0"], axis=1) 
         confirmed_tidy = confirmed_df.melt(id_vars = ["Country/Region", "Lat", "Long"])
         confirmed_tidy["variable"] = pd.to_datetime(confirmed_tidy["variable"])
-        self.times_series_confirmed_tidy = confirmed_tidy
+        self.timeseries_confirmed_tidy = confirmed_tidy
         
         # clean up data for timeseries_death
         ## copy data
-        death_df = self.times_series_death.copy()
-        death_df_2 = self.times_series_death.copy()
+        death_df = self.timeseries_death.copy()
+        death_df_2 = self.timeseries_death.copy()
         ## summation
         death_concat = death_df[death_df["Province/State"].notna()]["Country/Region"].unique()
         for country in death_concat:
@@ -170,12 +174,12 @@ class data_model:
         death_df = death_df[death_df["Province/State"].isna()].drop(columns=["Province/State", "Unnamed: 0"], axis=1) 
         death_tidy = death_df.melt(id_vars = ["Country/Region", "Lat", "Long"])
         death_tidy["variable"] = pd.to_datetime(death_tidy["variable"])
-        self.times_series_death_tidy = death_tidy
+        self.timeseries_death_tidy = death_tidy
         
         # clean up data for timeseries_recovered
         ## copy data
-        recovered_df = self.times_series_recovered.copy()
-        recovered_df_2 = self.times_series_recovered.copy()
+        recovered_df = self.timeseries_recovered.copy()
+        recovered_df_2 = self.timeseries_recovered.copy()
         ## summation
         recovered_concat = recovered_df[recovered_df["Province/State"].notna()]["Country/Region"].unique()
         for country in recovered_concat:
@@ -197,93 +201,47 @@ class data_model:
         recovered_df = recovered_df[recovered_df["Province/State"].isna()].drop(columns=["Province/State", "Unnamed: 0"], axis=1) 
         recovered_tidy = recovered_df.melt(id_vars = ["Country/Region", "Lat", "Long"])
         recovered_tidy["variable"] = pd.to_datetime(recovered_tidy["variable"])
-        self.times_series_recovered_tidy = recovered_tidy 
+        self.timeseries_recovered_tidy = recovered_tidy 
 
-        return self.times_series_death_tidy       
+        return self.timeseries_death_tidy       
 
-    def get_aggregated_daily_report(self):
-        """ Aggregate the regional level cases count to country level"""
-        return self.daily_report.groupby(
-            'Country_Region'
-        ).agg(
-            {'Confirmed': 'sum',  'Deaths': 'sum', 'Recovered': 'sum', 'Active': 'sum'}
-        ).reset_index()
-
-    def cumulative_filter(self, country="all"):
-        """return cumulative cases by country
-
-        Args:
-            country (str, optional): [description]. Defaults to "all".
-
-        Returns:
-            [Series]: with index as Confirmed, Deaths, Recovered
+    def __save_files(self):
         """
-        if country != "all":
-            return self.daily_report.query(f"Country_Region == '{country}'").sum(
-                numeric_only=True
-            )
-
-        return self.daily_report.sum(numeric_only=True)
-
-    def get_country_options(self):
-        """create an array of country options to be used in dropdowns
-
-        Returns:
-            array: [{"label":country1, "value":country1}, ...]
+        Save all data frames after processing
         """
-        result = []
-        for i in range(len(self.country_list)):
-            result.append(
-                {"label": self.country_list[i], "value": self.country_list[i]}
-            )
-
-        return result
-
-
-    def get_timeserie_data_by_country(self, country="all", c_type=case_type.confirmed):
-        """return timeseries data by country
-
-        Args:
-            country (str, optional): country name. Defaults to "all".
-            case_type (int, optional): 1: confirmed, 2: death, 3: recovered. Defaults to case_type.confirmed.
-
-        Raises:
-            Exception: if case_type entered is invalid
-        Return:
-            country_data: DataFrame, date: date, total: total number, yesterday: the day before's number, new: total - yesterday
-        """
-        if c_type == case_type.confirmed:
-            df = self.times_series_confirmed
-        elif c_type == case_type.death:
-            df = self.times_series_death
-        elif c_type == case_type.recovered:
-            df = self.times_series_recovered
-        else:
-            raise Exception("Case type is not supported")
-        if country != "all":
-            country_data = pd.DataFrame(
-                df[df["Country/Region"] == country].iloc[:, 5:].sum()
-            )
-        else:
-            country_data = pd.DataFrame(df.iloc[:, 5:].sum())
-        country_data = country_data.reset_index()
-        country_data.columns = ["date", "Total"]
-        yesterday_data = np.zeros(country_data.Total.shape[0])
-        yesterday_data[1:] = country_data.Total.to_numpy()[0:-1]
-        country_data["yesterday"] = yesterday_data
-        country_data["New"] = country_data.Total - country_data["yesterday"]
-
-        country_data = country_data.loc[:, ["date", "Total", "New"]]
-        country_data = pd.melt(
-            country_data,
-            id_vars=["date"],
-            value_vars=["Total", "New"],
-            value_name="count",
-            var_name="type",
+        processed_path = self.data_path.replace("/raw", "/processed/")
+        
+        self.daily_report.to_csv(processed_path + file_daily_report)
+        self.timeseries_confirmed.to_csv(processed_path + file_timeseries_confirmed)
+        self.timeseries_death.to_csv(processed_path + file_timeseries_death)
+        self.timeseries_recovered.to_csv(processed_path + file_timeseries_recovered)
+        self.timeseries_recovered_tidy.to_csv(processed_path + file_timeseries_recovered_tidy)
+        self.timeseries_death_tidy.to_csv(processed_path + file_timeseries_death_tidy)
+        self.timeseries_confirmed_tidy.to_csv(processed_path + file_timeseries_confirmed_tidy)
+    
+    def __get_processed_data(self):
+        path = self.data_path.replace("/raw", "/processed/")
+        self.daily_report = pd.read_csv(path + file_daily_report)
+        self.timeseries_confirmed = pd.read_csv(
+            path + file_timeseries_confirmed
         )
-
-        return country_data
-
-    def save_to_file(self):
-        """save the whole data model into file"""
-        pass
+        self.timeseries_death = pd.read_csv(
+            path + file_timeseries_death
+        )
+        self.timeseries_recovered = pd.read_csv(
+            path + file_timeseries_recovered
+        )
+        self.timeseries_death_tidy = pd.read_csv(
+            path + file_timeseries_death_tidy
+        )
+        self.timeseries_recovered_tidy = pd.read_csv(
+            path + file_timeseries_recovered_tidy
+        )
+        self.timeseries_confirmed_tidy = pd.read_csv(
+            path + file_timeseries_confirmed_tidy
+        )
+        
+def reload_all_data(path):
+    dm = data_model(path)
+    dm.reload()
+    
