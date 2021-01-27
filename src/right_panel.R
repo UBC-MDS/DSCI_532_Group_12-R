@@ -4,6 +4,10 @@ library(dashHtmlComponents)
 library(dashBootstrapComponents)
 library(reticulate)
 library(here)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(purrr)
 
 source(here("src", "stylesheet.R"))
 
@@ -47,8 +51,35 @@ create_button_group <- function(){
   )
 }
 
-create_timeseries_chart <- function(country, case_type=1, ntype="Total"){
+# fix_date <- function(str_date){
+#   c <- unlist(str_split(str_date, "/"))
+#   as.Date(paste(c[1], c[2], paste0("20",c[3]), sep="/"), format="%m/%d/%Y")
+# }
+
+create_timeseries_chart <- function(timeseries_data, chart_title, ntype="Total"){
+
+  ts_data <- timeseries_data %>% filter(type==ntype)
+  # ts_data$date <- purrr::map(ts_data$date, fix_date)
+  # ts_data <- ts_data %>% mutate(date = fix_date(date))
+  p <- ggplot(ts_data) +
+    aes(x = date,
+        y = count,
+        ) +
+    geom_line() +
+    scale_x_date(labels = function(x) format(x, "%d-%b"))+
+    xlab("") + ylab("")
+  ggplotly(p)
   
+  # set.seed(100)
+  # d <- diamonds[sample(nrow(diamonds), 1000), ]
+  # 
+  # p <- ggplot(data = d, aes(x = carat, y = price)) +
+  #   geom_point(aes(text = paste("Clarity:", clarity)), size = 4) +
+  #   geom_smooth(aes(colour = cut, fill = cut)) + facet_wrap(~ cut)
+  # 
+  # fig <- ggplotly(p)
+  # 
+  # fig
 }
 
 #' create right panel component
@@ -61,11 +92,15 @@ create_timeseries_chart <- function(country, case_type=1, ntype="Total"){
 create_right_panel <- function(){
   data_path = paste0(here(), "/data/raw")
   country = "Canada"
-  case_type <- 1
-  panel_data <- get_right_panel_data(data_path, country, case_type)
   country_list <- unlist(get_country_list(data_path))
-  summary_numbers <- unlist(panel_data[1][1])
-  timeseries_data <- panel_data[2]
+  
+  results <- refresh_right_panel(data_path, country, "Total")
+  confirmed <- results[[1]]
+  recovered <- results[[2]]
+  deaths <- results[[3]]
+  c_chart <- results[[4]]
+  d_chart <- results[[5]]
+  
   right_panel <- htmlDiv(
     list(
       dbcRow(dbcCol(htmlH1("Country"))),
@@ -76,21 +111,33 @@ create_right_panel <- function(){
           dbcRow(dbcCol(
             dbcCardDeck(
               list(
-                create_card("Total cases", summary_numbers[1], "lb_confirmed"),
-                create_card("Recovered", summary_numbers[2], "lb_recovered"),
-                create_card("Deaths", summary_numbers[3], "lb_deaths")
+                create_card("Total cases", confirmed, "lb_confirmed"),
+                create_card("Recovered", recovered, "lb_recovered"),
+                create_card("Deaths", deaths, "lb_deaths")
               )
             )
           )),
           dbcRow(
             dbcCol(create_button_group())
           ),
-          dbcRow(dbcCol(htmlFrame(id="chart_confirmed_trend", style=lp_chart_style))),
-          dbcRow(dbcCol(htmlFrame(id="chart_deaths_trend", style=lp_chart_style)))
+          dbcRow(dbcCol(dccGraph(id="chart_confirmed_trend", figure = c_chart))),
+          dbcRow(dbcCol(dccGraph(id="chart_deaths_trend", figure = d_chart)))
         )
       )))
     )
   )
+  
   right_panel
+}
+
+refresh_right_panel <- function(path, country, ntype){
+  summary_numbers <- unlist(get_total_numbers(path, country))
+  timeseries_data <- get_timeseries_data(path, country)
+  timeseries_data_confirmed <- timeseries_data[[1]]
+  timeseries_data_death <- timeseries_data[[2]]
+  
+  c_chart = create_timeseries_chart(timeseries_data_confirmed, "Case over time", ntype=ntype)
+  d_chart = create_timeseries_chart(timeseries_data_death,  "Deaths over time", ntype=ntype)
+  list(summary_numbers[1], summary_numbers[2], summary_numbers[3], c_chart, d_chart)
 }
 

@@ -265,6 +265,8 @@ class data_model:
             value_name="count",
             var_name="type",
         )
+        country_data.date = pd.to_datetime(country_data.date)
+        country_data.date = country_data.date.dt.strftime('%Y-%m-%d')
 
         return country_data
 
@@ -272,17 +274,16 @@ class data_model:
         """save the whole data model into file"""
         pass
     
-def get_right_panel_data(path, country, nType):
-    """
-    Retrieve all data needed
-    """
+def get_total_numbers(path, country):
     dm = data_model(path)
     summary_result = dm.cumulative_filter(country)
-    summary = np.array([summary_result.Confirmed, summary_result.Recovered, summary_result.Deaths])
-    timeseries_data = dm.get_timeserie_data_by_country(country, nType)
-    
-    return summary, timeseries_data
-    
+    return summary_result.Confirmed, summary_result.Recovered, summary_result.Deaths
+
+def get_timeseries_data(path, country):
+    dm = data_model(path)
+    timeseries_data_confirmed = dm.get_timeserie_data_by_country(country, 1)
+    timeseries_data_death = dm.get_timeserie_data_by_country(country, 2)
+    return timeseries_data_confirmed, timeseries_data_death
 
 def get_country_list(path):
     dm = data_model(path)
