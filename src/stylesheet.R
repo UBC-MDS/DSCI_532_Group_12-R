@@ -19,3 +19,11 @@ lp_chart_style <- list(
   width="100%",
   height="300px"
 )
+
+radio_buttons_style <- list(
+  paddingTop="10px",
+  paddingBottom="10px",
+  paddingLeft="10px",
+  backgroundColor="gray",
+  color="white"
+)

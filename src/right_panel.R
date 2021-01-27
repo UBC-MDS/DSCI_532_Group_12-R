@@ -47,11 +47,20 @@ create_card <- function(title, card_content, content_id){
 
 # create the button group for the right panel
 rp_create_button_group <- function(){
-  button_groups <- dbcButtonGroup(
-    list(
-      dbcButton("Total", active=TRUE, id='rp_btn_total'),
-      dbcButton("New", id='rp_btn_new')
-    ),size = "md"
+  # button_groups <- dbcButtonGroup(
+  #   list(
+  #     dbcButton("Total", active=TRUE, id='rp_btn_total'),
+  #     dbcButton("New", id='rp_btn_new')
+  #   ),size = "md"
+  # )
+  dccRadioItems(
+    id = "rp_radio_count_type",
+    options=list(
+      list("label"="Total", "value"="Total"),
+      list("label"="New", "value"="New")
+    ),
+    value="Total", 
+    style=radio_buttons_style
   )
 }
 
@@ -134,8 +143,8 @@ rp_refresh <- function(country, ntype){
   deaths <- comma(total_numbers$Deaths)
   timeseries_confirmed <- get_timeseries_data_by_country(country, 1)
   timeseries_death <- get_timeseries_data_by_country(country, 2)
-  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, country, "Cases over time")
-  d_chart <- rp_create_timeseries_chart(timeseries_death, country, "Deaths over time")
+  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, country, "Cases over time", ntype)
+  d_chart <- rp_create_timeseries_chart(timeseries_death, country, "Deaths over time", ntype)
   
   list(confirmed, recovered, deaths, c_chart, d_chart)
 }

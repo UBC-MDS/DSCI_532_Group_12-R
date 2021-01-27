@@ -44,17 +44,16 @@ app$callback(list(
 ),
 list(
   input("dd_country", "value"),
-  input("rp_btn_total", "n_clicks"),
-  input("rp_btn_new", "n_clicks")
+  input("rp_radio_count_type", "value")
 ),
-function(country, total_click, new_click) {
-  # ctx <- app$callback_context()
-  ntype="Total"
-  # if (!is.null(ctx) && ctx$triggered$value){
-  #   btn_id <- unlist(strsplit(ctx$triggered$prop_id, "[.]"))[1]
-  #   if (btn_id == "rp_btn_new")
-  #     ntype="New"
-  # }
-  rp_refresh(country, ntype)
+function(country, count_type) {
+  # # ctx <- app$callback_context()
+  # ntype="Total"
+  # # if (!is.null(ctx) && ctx$triggered$value){
+  # #   btn_id <- unlist(strsplit(ctx$triggered$prop_id, "[.]"))[1]
+  # #   if (btn_id == "rp_btn_new")
+  # #     ntype="New"
+  # # }
+  rp_refresh(country, count_type)
 })
 app$run_server(host = '127.0.0.1', debug=T) 
