@@ -8,7 +8,7 @@ library(ggplot2)
 library(plotly)
 library(tidyverse)
 library(purrr)
-
+library(scales)
 
 source(here("src", "stylesheet.R"))
 source(here("src", "data_loader.R"))
@@ -70,7 +70,9 @@ rp_create_timeseries_chart <- function(timeseries_data, chart_title, ntype="Tota
         ) +
     geom_line() +
     scale_x_date(labels = function(x) format(x, "%m/%Y"))+
-    xlab("") + ylab("")+ ggtitle(chart_title)
+    scale_y_continuous(labels=scales::label_number_si())+
+    labs(x="", y="", subtitle = country, title=chart_title)+
+    theme(plot.subtitle = element_text(size=9, face="bold"))
   ggplotly(p)
 }
 
@@ -86,9 +88,9 @@ create_right_panel <- function(){
   country = "Canada"
   country_list <- get_country_list()
   total_numbers <- get_total_numbers_by_country(country)
-  confirmed <- total_numbers$Confirmed
-  recovered <- total_numbers$Recovered
-  deaths <- total_numbers$Deaths
+  confirmed <- comma(total_numbers$Confirmed)
+  recovered <- comma(total_numbers$Recovered)
+  deaths <- comma(total_numbers$Deaths)
   timeseries_confirmed <- get_timeseries_data_by_country(country, 1)
   timeseries_death <- get_timeseries_data_by_country(country, 2)
   c_chart <- rp_create_timeseries_chart(timeseries_confirmed, "Cases over time")
@@ -123,14 +125,17 @@ create_right_panel <- function(){
   right_panel
 }
 
-# refresh_right_panel <- function(path, country, ntype){
-#   summary_numbers <- unlist(get_total_numbers(path, country))
-#   timeseries_data <- get_timeseries_data(path, country)
-#   timeseries_data_confirmed <- timeseries_data[[1]]
-#   timeseries_data_death <- timeseries_data[[2]]
-#   
-#   c_chart = create_timeseries_chart(timeseries_data_confirmed, "Case over time", ntype=ntype)
-#   d_chart = create_timeseries_chart(timeseries_data_death,  "Deaths over time", ntype=ntype)
-#   list(summary_numbers[1], summary_numbers[2], summary_numbers[3], c_chart, d_chart)
-# }
+# refresh the panel upon callbacks
+rp_refresh <- function(country, ntype){
+  total_numbers <- get_total_numbers_by_country(country)
+  confirmed <- comma(total_numbers$Confirmed)
+  recovered <- comma(total_numbers$Recovered)
+  deaths <- comma(total_numbers$Deaths)
+  timeseries_confirmed <- get_timeseries_data_by_country(country, 1)
+  timeseries_death <- get_timeseries_data_by_country(country, 2)
+  c_chart <- rp_create_timeseries_chart(timeseries_confirmed, "Cases over time")
+  d_chart <- rp_create_timeseries_chart(timeseries_death, "Deaths over time")
+  
+  list(confirmed, recovered, deaths, c_chart, d_chart)
+}
 
