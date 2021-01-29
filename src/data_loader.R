@@ -4,7 +4,7 @@ library(tidyverse)
 source_python(here("src", "data_model.py"))
 
 data_path = paste0(here(), "/data/raw")
-processed_data_path = paste0(here(), "/data/processed/")
+processed_data_path = paste0(here(), "/data/raw/")
 
 #--------Refresh data if outdated----------------
 reload_all_data(data_path)
@@ -29,6 +29,18 @@ get_total_numbers_by_country <- function(country) {
     Recovered = sum(Recovered)
   )
 }
+
+#' get summary numbers for all countries
+#'
+#' @return a tibble of Confirmed, Deaths, Recovered, Active
+get_global_total_numbers <- function() {
+  daily_report %>% summarise(
+    Confirmed = sum(Confirmed),
+    Deaths = sum(Deaths),
+    Recovered = sum(Recovered)
+  )
+}
+
 
 # return a list of unique countries
 get_country_list <- function()

@@ -209,7 +209,7 @@ class data_model:
         """
         Save all data frames after processing
         """
-        processed_path = self.data_path.replace("/raw", "/processed/")
+        processed_path = self.data_path.replace("raw", "processed/")
         
         self.daily_report.to_csv(processed_path + file_daily_report)
         self.timeseries_confirmed.to_csv(processed_path + file_timeseries_confirmed)
@@ -220,7 +220,6 @@ class data_model:
         self.timeseries_confirmed_tidy.to_csv(processed_path + file_timeseries_confirmed_tidy)
     
     def __get_processed_data(self):
-        path = self.data_path.replace("/raw", "/processed/")
         self.daily_report = pd.read_csv(path + file_daily_report)
         self.timeseries_confirmed = pd.read_csv(
             path + file_timeseries_confirmed

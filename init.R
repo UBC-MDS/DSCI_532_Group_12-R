@@ -8,9 +8,11 @@ options(repos=r)
 
 # ======================================================================
 
-
-
 # packages go here
  install.packages(c('dash', 'readr', 'here', 'ggthemes', 'tidyverse', 'remotes', 'reticulate', 'ggplot2', 'purrr', 'scales'))
  remotes::install_github('facultyai/dash-bootstrap-components@r-release')
+
+ #config python for R
  reticulate::install_miniconda()
+ library(reticulate)
+ use_python("~/miniconda3/bin/python")
