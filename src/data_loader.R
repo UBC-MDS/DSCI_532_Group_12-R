@@ -10,12 +10,15 @@ processed_data_path = paste0(here(), "/data/raw/")
 reload_all_data(data_path)
 
 # --------Load the data frames--------------------
-daily_report <-
-  read_csv(paste0(processed_data_path, file_daily_report))
+daily_report <- read_csv(paste0(processed_data_path, file_daily_report))
 
 timeseries_confirmed <- read_csv(paste0(processed_data_path, file_timeseries_confirmed))
 timeseries_death <- read_csv(paste0(processed_data_path, file_timeseries_death))
 timeseries_recovered <- read_csv(paste0(processed_data_path, file_timeseries_recovered))
+
+timeseries_confirmed_tidy <- read_csv(paste0(processed_data_path, file_timeseries_confirmed_tidy))
+timeseries_death_tidy <- read_csv(paste0(processed_data_path, file_timeseries_death_tidy))
+timeseries_recovered_tidy <- read_csv(paste0(processed_data_path, file_timeseries_recovered_tidy))
 
 # ---------Define functions to use in UI----------
 
@@ -87,4 +90,20 @@ get_timeseries_data_by_country <- function(country, casetype) {
       values_to = "count"
     )
   country_data
+}
+
+#' get timeseries data by country and case type
+#'
+#' @param casetype (Confirmed: 1, Deaths: 2, Recovered: 3)
+#'
+#' @return a tibble with 2 columns: date, count, type (Total/New)
+get_timeseries_data_by_casetype <- function(casetype) {
+  if (casetype == 1)
+    df <- timeseries_confirmed_tidy
+  else if (casetype == 2)
+    df <- timeseries_death_tidy
+  else
+    df <- timeseries_recovered_tidy
+  
+  df
 }
