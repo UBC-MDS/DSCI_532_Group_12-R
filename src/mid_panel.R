@@ -34,7 +34,7 @@ mp_data_selection <- function(mptype = "Confirmed"){
   data_latest <- data %>% 
     filter(variable == max(variable)) %>% 
     mutate( Country = factor(`Country/Region`, unique(`Country/Region`))) %>%
-    mutate( mytext=paste(
+    mutate( mptext=paste(
       "Country: ", Country, "\n", 
       "Cases: ", value, sep="")
     )
@@ -46,30 +46,40 @@ mp_data_selection <- function(mptype = "Confirmed"){
 
 #' generate world map bubble chart
 #'
-#' @param data frame
+#' @param dataframe
 #'
 #' @return a plotly chart object
 mp_create_world_map_chart <- function(data_latest){
   world <- map_data("world")
-  mybreaks <- c(1, 20, 100, 1000, 50000)
+  mp_breaks <- c(1, 20, 100, 1000, 50000)
   
-  p <- data_latest %>%
+  mp_map <- data_latest %>%
     ggplot() +
-    geom_polygon(data = world, aes(x=long, y = lat, group = group), fill="grey", alpha=0.3) +
-    geom_point(aes(x=Long, y=Lat, size=value, color=value, text = mytext, alpha = 0.4)) +
-    scale_size_continuous(name="Cases", trans="log", range=c(1,10), breaks=mybreaks, labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
-    scale_color_viridis_c(option="inferno",name="Cases", trans="log",breaks=mybreaks, labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
+    geom_polygon(data = world, 
+                 aes(x=long, y = lat, group = group), 
+                 fill="grey", 
+                 alpha=0.3) +
+    geom_point(aes(x=Long, y=Lat, size=value, color=value, text = mptext, alpha = 0.4)) +
+    scale_size_continuous(name="Cases", 
+                          trans="log", 
+                          range=c(1,10), 
+                          breaks=mp_breaks, 
+                          labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
+    scale_color_viridis_c(option="inferno",
+                          name="Cases", 
+                          trans="log",
+                          breaks=mp_breaks, 
+                          labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
     theme_void() + 
     guides(colour = guide_legend()) + 
-    theme(
-      legend.position = "bottom",
-      text = element_text(color = "#22211d"),
-      plot.background = element_rect(fill = "#ffffff", color = NA),
-      panel.background = element_rect(fill = "#ffffff", color = NA),
-      legend.background = element_rect(fill = "#ffffff", color = NA)
-    )
+    theme(legend.position = "bottom",
+          text = element_text(color = "#22211d"),
+          plot.background = element_rect(fill = "#ffffff", color = NA),
+          panel.background = element_rect(fill = "#ffffff", color = NA),
+          legend.background = element_rect(fill = "#ffffff", color = NA)
+          )
 
-  ggplotly(p, tooltip="text")
+  ggplotly(mp_map, tooltip="text")
 }
 
 #' define drop box list
