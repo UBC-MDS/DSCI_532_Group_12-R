@@ -34,12 +34,13 @@ lp_create_chart <- function(daily_summary_report, c_type="Confirmed"){
 
   top30 <- data %>% select(Country_Region, cases) %>%
     arrange(desc(cases)) %>%
-    top_n(30)
+    top_n(50)
 
 
   chart <- top30 %>% 
     ggplot(aes(x = cases, y = reorder(Country_Region, cases), fill = cases)) + 
     geom_bar(stat = "identity") + 
+    theme(axis.title.y=element_blank()) +
     scale_fill_gradient(low = "yellow", high = "red")
     ggplotly(chart)
 }

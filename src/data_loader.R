@@ -1,4 +1,3 @@
-library(reticulate)
 library(here)
 library(tidyverse)
 

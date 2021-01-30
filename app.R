@@ -32,9 +32,9 @@ app$layout(dbcContainer(list(dbcRow(dbcCol(
   pageTitle
 )),
 dbcRow(
-  list(dbcCol(left_panel),
-       dbcCol(mid_panel),
-       dbcCol(right_panel))
+  list(dbcCol(left_panel, width=3),
+       dbcCol(mid_panel, width=6),
+       dbcCol(right_panel, width=3))
   
 ))
   ,style = list('max-width' = '85%')))
