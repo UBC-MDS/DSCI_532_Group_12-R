@@ -4,7 +4,7 @@ library(tidyverse)
 source_python(here("src", "data_model.py"))
 
 data_path = paste0(here(), "/data/raw")
-processed_data_path = paste0(here(), "/data/raw/")
+processed_data_path = paste0(here(), "/data/processed/")
 
 #--------Refresh data if outdated----------------
 reload_all_data(data_path)
