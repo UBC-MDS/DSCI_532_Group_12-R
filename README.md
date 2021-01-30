@@ -22,7 +22,7 @@ On the right side of the dashboard, the country level statistics can be seen in 
 
 ## Usage
 
-Access the live dashboard at [TBD]
+Access the live dashboard at https://covid-19-data-portal-r.herokuapp.com/
 
 ### Build the dashboard locally
 

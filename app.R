@@ -4,22 +4,25 @@ library(dashHtmlComponents)
 library(dashBootstrapComponents)
 library(here)
 
+source(here("src", "data_loader.R"))
+source(here("src", "left_panel.R"))
 source(here("src", "right_panel.R"))
 source(here("src", "mid_panel.R"))
 source(here("src", "stylesheet.R"))
 
 
+
 data_path = paste0(here(), "/data/raw")
 
-app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
+app <- Dash$new(external_stylesheets = dbcThemes$COSMO)
 app$title("Covid-19 Data Portal")
 
 # components
 right_panel <- create_right_panel()
 
-left_panel <- htmlDiv(htmlH1("Global"))
- 
 mid_panel <- create_mid_panel()
+
+left_panel <- create_left_panel()
  
 pageTitle <- htmlH1('Covid-19 Data Portal',
                     style = heading)
@@ -29,9 +32,9 @@ app$layout(dbcContainer(list(dbcRow(dbcCol(
   pageTitle
 )),
 dbcRow(
-  list(dbcCol(left_panel),
-       dbcCol(mid_panel),
-       dbcCol(right_panel))
+  list(dbcCol(left_panel, width=3),
+       dbcCol(mid_panel, width=6),
+       dbcCol(right_panel, width=3))
   
 ))
   ,style = list('max-width' = '85%')))
@@ -49,15 +52,20 @@ list(
   input("rp_radio_count_type", "value")
 ),
 function(country, count_type) {
-  # # ctx <- app$callback_context()
-  # ntype="Total"
-  # # if (!is.null(ctx) && ctx$triggered$value){
-  # #   btn_id <- unlist(strsplit(ctx$triggered$prop_id, "[.]"))[1]
-  # #   if (btn_id == "rp_btn_new")
-  # #     ntype="New"
-  # # }
-  rp_refresh(country, count_type)
+  c_chart <- rp_refresh(country, count_type)
 })
+
+
+# Callback Handling for Left Panel
+app$callback(
+  output("chart_cases_ranking", "figure"),
+  list(input("lp_c_type", "value")),
+  function(c_type) {
+    global_total_numbers <- get_global_total_numbers()
+    c_chart <- lp_create_chart(global_total_numbers, c_type)
+  }
+)
+
 
 # Callback Handling for Mid Panel
 app$callback(
@@ -68,4 +76,7 @@ app$callback(
     world_chart <- mp_create_world_map_chart(df)
     }
 )
-app$run_server(host = '127.0.0.1', debug=T) 
+
+#app$run_server(host = '127.0.0.1', debug = T) 
+
+app$run_server(host = '0.0.0.0') 

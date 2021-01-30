@@ -1,13 +1,17 @@
-library(reticulate)
 library(here)
 library(tidyverse)
-source_python(here("src", "data_model.py"))
 
 data_path = paste0(here(), "/data/raw")
 processed_data_path = paste0(here(), "/data/processed/")
 
 #--------Refresh data if outdated----------------
-reload_all_data(data_path)
+file_daily_report = "daily_report.csv"
+file_timeseries_confirmed = "time_series_covid19_confirmed_global.csv"
+file_timeseries_recovered = "time_series_covid19_recovered_global.csv"
+file_timeseries_death = "time_series_covid19_deaths_global.csv"
+file_timeseries_death_tidy = "timeseries_death_tidy.csv"
+file_timeseries_confirmed_tidy = "timeseries_confirmed_tidy.csv"
+file_timeseries_recovered_tidy = "timeseries_recovered_tidy.csv"
 
 # --------Load the data frames--------------------
 daily_report <- read_csv(paste0(processed_data_path, file_daily_report))
@@ -32,6 +36,19 @@ get_total_numbers_by_country <- function(country) {
     Recovered = sum(Recovered)
   )
 }
+
+#' get summary numbers for all countries
+#'
+#' @return a tibble of Confirmed, Deaths, Recovered, Active
+get_global_total_numbers <- function() {
+  daily_report %>% group_by(Country_Region) %>% summarise(
+    Confirmed = sum(Confirmed),
+    Deaths = sum(Deaths),
+    Recovered = sum(Recovered),
+    Active = sum(Active)
+  )
+}
+
 
 # return a list of unique countries
 get_country_list <- function()
