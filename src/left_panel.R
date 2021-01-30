@@ -38,7 +38,7 @@ lp_create_chart <- function(daily_summary_report, c_type="Confirmed"){
 
 
   chart <- top30 %>% 
-    ggplot(aes(x = cases, y = Country_Region, fill = cases)) + 
+    ggplot(aes(x = cases, y = reorder(Country_Region, cases), fill = cases)) + 
     geom_bar(stat = "identity") + 
     scale_fill_gradient(low = "yellow", high = "red")
     ggplotly(chart)

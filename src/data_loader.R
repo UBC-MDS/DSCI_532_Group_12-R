@@ -45,7 +45,8 @@ get_global_total_numbers <- function() {
   daily_report %>% group_by(Country_Region) %>% summarise(
     Confirmed = sum(Confirmed),
     Deaths = sum(Deaths),
-    Recovered = sum(Recovered)
+    Recovered = sum(Recovered),
+    Active = sum(Active)
   )
 }
 
