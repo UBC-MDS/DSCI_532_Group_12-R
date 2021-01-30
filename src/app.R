@@ -5,7 +5,9 @@ library(dashBootstrapComponents)
 library(here)
 
 source(here("src", "right_panel.R"))
+source(here("src", "mid_panel.R"))
 source(here("src", "stylesheet.R"))
+
 
 data_path = paste0(here(), "/data/raw")
 
@@ -17,7 +19,7 @@ right_panel <- create_right_panel()
 
 left_panel <- htmlDiv(htmlH1("Global"))
  
-mid_panel <- htmlDiv(htmlH1("World Map"))
+mid_panel <- create_mid_panel()
  
 pageTitle <- htmlH1('Covid-19 Data Portal',
                     style = heading)
@@ -56,4 +58,14 @@ function(country, count_type) {
   # # }
   rp_refresh(country, count_type)
 })
+
+# Callback Handling for Mid Panel
+app$callback(
+  output("world_chart_bubble", "figure"),
+  list(input("mp_dropdown", "value")),
+  function(mptype) {
+    df <- mp_data_selection(mptype)
+    world_chart <- mp_create_world_map_chart(df)
+    }
+)
 app$run_server(host = '127.0.0.1', debug=T) 
