@@ -2,6 +2,7 @@ library(dash)
 library(dashCoreComponents)
 library(dashHtmlComponents)
 library(dashBootstrapComponents)
+library(reticulate)
 library(here)
 library(ggplot2)
 library(plotly)
@@ -37,7 +38,7 @@ mp_data_selection <- function(mptype = "Confirmed"){
       "Country: ", Country, "\n", 
       "Cases: ", value, sep="")
     )
-
+  
   data_latest
 }
 
@@ -50,7 +51,7 @@ mp_data_selection <- function(mptype = "Confirmed"){
 #' @return a plotly chart object
 mp_create_world_map_chart <- function(data_latest){
   world <- map_data("world")
-  mp_breaks <- c(1, 20, 100, 1000, 50000)
+  mp_breaks <- c(1, 50, 3000, 150000, 8000000)
   
   mp_map <- data_latest %>%
     ggplot() +
@@ -61,31 +62,25 @@ mp_create_world_map_chart <- function(data_latest){
     geom_point(aes(x=Long, y=Lat, size=value, color=value, text = mptext, alpha = 0.4)) +
     scale_size_continuous(name="Cases", 
                           trans="log", 
-                          range=c(1,10), 
-                          breaks=mp_breaks, 
-                          labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
+                          range=c(1,10),
+                          breaks=mp_breaks,
+                          labels = c("1", "50", "3000", "150,000", "8,000,000+")) +
     scale_color_viridis_c(option="inferno",
                           name="Cases", 
                           trans="log",
-                          breaks=mp_breaks, 
-                          labels = c("1-19", "20-99", "100-999", "1,000-49,999", "50,000+")) +
-    theme_void() + 
-    guides(colour = guide_legend()) + 
-    theme(legend.position = "bottom",
-          text = element_text(color = "#22211d"),
-          plot.background = element_rect(fill = "#ffffff", color = NA),
-          panel.background = element_rect(fill = "#ffffff", color = NA),
-          legend.background = element_rect(fill = "#ffffff", color = NA)
-          )
-
+                          breaks=mp_breaks,
+                          labels = c("1", "50", "3000", "150,000", "8,000,000+"))  +
+    theme_void() 
+  
   ggplotly(mp_map, tooltip="text")
 }
+mp_create_world_map_chart(mp_data_selection("Confirmed"))
 
 #' define drop box list
 drop_list <- list(list(label="Confirmed", value= "Confirmed"),
                   list(label="Recovered", value= "Recovered"),
                   list(label="Death", value= "Death")
-                  )
+)
 
 
 #' create mid panel component
@@ -100,7 +95,7 @@ create_mid_panel <- function(){
   mptype = "Confirmed"
   df <- mp_data_selection(mptype)
   world_chart <- mp_create_world_map_chart(df)
-
+  
   middle_panel <- htmlDiv(
     list(
       dbcRow(dbcCol(htmlH1("World Map"))),
@@ -121,9 +116,10 @@ create_mid_panel <- function(){
 mp_refresh <- function(mptype){
   df <- mp_data_selection(mptype)
   world_chart <- mp_create_world_map_chart(df) 
-
+  
   world_chart
 }
+
 
 
 
