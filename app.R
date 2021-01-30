@@ -14,7 +14,7 @@ source(here("src", "stylesheet.R"))
 
 data_path = paste0(here(), "/data/raw")
 
-app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
+app <- Dash$new(external_stylesheets = dbcThemes$COSMO)
 app$title("Covid-19 Data Portal")
 
 # components
