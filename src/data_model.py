@@ -1,7 +1,9 @@
 import pandas as pd
 import datetime
-import os, sys, inspect
+import os, sys
+import getopt
 import numpy as np
+
 
 file_daily_report = "daily_report.csv"
 file_timeseries_confirmed = "time_series_covid19_confirmed_global.csv"
@@ -243,4 +245,24 @@ class data_model:
 def reload_all_data(path):
     dm = data_model(path)
     dm.reload()
+
+
+if __name__ == '__main__':
+    input_path = None
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hi:", [
+            "help", "--input"
+        ])
+        for o, a in opts:
+            if o in ('-h', '--help'):
+                usage()
+                exit()
+            if o in ('-i', '--input'):
+                input_path = a
+        reload_all_data(input_path)
+    except Exception as e:
+        print(e)
+
     
+
+

@@ -1,13 +1,11 @@
 library(reticulate)
 library(here)
 library(tidyverse)
-source_python(here("src", "data_model.py"))
 
 data_path = paste0(here(), "/data/raw")
 processed_data_path = paste0(here(), "/data/processed/")
 
 #--------Refresh data if outdated----------------
-reload_all_data(data_path)
 
 # --------Load the data frames--------------------
 daily_report <- read_csv(paste0(processed_data_path, file_daily_report))
@@ -37,7 +35,7 @@ get_total_numbers_by_country <- function(country) {
 #'
 #' @return a tibble of Confirmed, Deaths, Recovered, Active
 get_global_total_numbers <- function() {
-  daily_report %>% summarise(
+  daily_report %>% group_by(Country_Region) %>% summarise(
     Confirmed = sum(Confirmed),
     Deaths = sum(Deaths),
     Recovered = sum(Recovered)

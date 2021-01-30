@@ -4,7 +4,7 @@ library(dashHtmlComponents)
 library(dashBootstrapComponents)
 library(here)
 
-
+source(here("src", "data_loader.R"))
 source(here("src", "left_panel.R"))
 source(here("src", "right_panel.R"))
 source(here("src", "mid_panel.R"))
@@ -22,7 +22,7 @@ right_panel <- create_right_panel()
 
 mid_panel <- create_mid_panel()
 
-left_panel <- htmlDiv(htmlH1("Global"))
+left_panel <- create_left_panel()
  
 pageTitle <- htmlH1('Covid-19 Data Portal',
                     style = heading)
@@ -52,28 +52,19 @@ list(
   input("rp_radio_count_type", "value")
 ),
 function(country, count_type) {
-  # # ctx <- app$callback_context()
-  # ntype="Total"
-  # # if (!is.null(ctx) && ctx$triggered$value){
-  # #   btn_id <- unlist(strsplit(ctx$triggered$prop_id, "[.]"))[1]
-  # #   if (btn_id == "rp_btn_new")
-  # #     ntype="New"
-  # # }
-  rp_refresh(country, count_type)
+  c_chart <- rp_refresh(country, count_type)
 })
-
 
 
 # Callback Handling for Left Panel
-app$callback(list(
-  output("chart_cases_ranking", "figure")
-),
-list(
-   input("c_type", "value")
-),
-function(c_type) {
-  lp_refresh(c_type)
-})
+app$callback(
+  output("chart_cases_ranking", "figure"),
+  list(input("lp_c_type", "value")),
+  function(c_type) {
+    global_total_numbers <- get_global_total_numbers()
+    c_chart <- lp_create_chart(global_total_numbers, c_type)
+  }
+)
 
 
 # Callback Handling for Mid Panel
@@ -86,6 +77,6 @@ app$callback(
     }
 )
 
-app$run_server(host = '127.0.0.1', debug = T) 
+#app$run_server(host = '127.0.0.1', debug = T) 
 
-# app$run_server(host = '127.0.0.1', port = Sys.getenv('PORT', 8050)) 
+app$run_server(host = '127.0.0.1', port = Sys.getenv('PORT', 8050)) 

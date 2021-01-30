@@ -12,6 +12,8 @@ RUN if [ -f '/app/apt-packages' ]; then apt-get update -q && cat apt-packages | 
 # look for /app/init.R and if it exists, execute it
 RUN if [ -f '/app/init.R' ]; then /usr/bin/R --no-init-file --no-save --quiet --slave -f /app/init.R; fi; 
 
+# run data model python file
+CMD cd /app && python src/data_model.py -i data/
 
 # here app.R needs to match the name of the file which contains your app              
 CMD cd /app && /usr/bin/R --no-save -f /app/app.R
