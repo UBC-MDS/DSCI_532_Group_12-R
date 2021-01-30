@@ -14,9 +14,9 @@ app <- Dash$new(external_stylesheets = dbcThemes$BOOTSTRAP)
 app$title("Covid-19 Data Portal")
 
 # components
-right_panel <- htmlDiv(htmlH1("World Map"))
+right_panel <- create_right_panel()
 
-left_panel <- create_left_panel()
+left_panel <- htmlDiv(htmlH1("World Map"))
 
 mid_panel <- htmlDiv(htmlH1("World Map"))
  

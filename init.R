@@ -13,6 +13,6 @@ options(repos=r)
  remotes::install_github('facultyai/dash-bootstrap-components@r-release')
 
  #config python for R
- reticulate::install_miniconda()
+ reticulate::install_miniconda("~")
  library(reticulate)
- use_python("~/miniconda3/bin/python")
+ use_python("~/miniconda/bin/python")
