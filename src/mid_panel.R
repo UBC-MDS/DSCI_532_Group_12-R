@@ -50,26 +50,40 @@ mp_data_selection <- function(mptype = "Confirmed"){
 #' @return a plotly chart object
 mp_create_world_map_chart <- function(data_latest){
   world <- map_data("world")
-  mp_breaks <- c(1, 50, 3000, 150000, 8000000)
+  mp_breaks <- c(0, 5000000, 10000000, 15000000, 20000000, 25000000)
   
   mp_map <- data_latest %>%
     ggplot() +
-    geom_polygon(data = world, 
-                 aes(x=long, y = lat, group = group), 
-                 fill="grey", 
-                 alpha=0.3) +
-    geom_point(aes(x=Long, y=Lat, size=value, color=value, text = mptext, alpha = 0.4)) +
-    scale_size_continuous(name="Cases", 
-                          trans="log", 
-                          range=c(1,10),
-                          breaks=mp_breaks,
-                          labels = c("1", "50", "3000", "150,000", "8,000,000+")) +
-    scale_color_viridis_c(option="inferno",
-                          name="Cases", 
-                          trans="log",
-                          breaks=mp_breaks,
-                          labels = c("1", "50", "3000", "150,000", "8,000,000+"))  +
-    theme_void() 
+    geom_polygon(
+      data = world,
+      aes(x = long, y = lat, group = group),
+      fill = "grey",
+      alpha = 0.3
+    ) +
+    geom_point(aes(
+      x = Long,
+      y = Lat,
+      size = value,
+      color = value,
+      text = mptext,
+      alpha = 0.4
+    )) +
+    scale_size_continuous(
+      name = "Cases",
+      breaks = mp_breaks,
+      labels = c("<1M", "5M", "10M", "15M", "20M", "25M+")
+    ) +
+    scale_color_distiller(
+      palette = "YlOrRd",
+      name = "Cases",
+      breaks = mp_breaks,
+      trans = "reverse",
+      direction = -1,
+      labels = c("<1M", "5M", "10M", "15M", "20M", "25M+")
+    )  +
+    theme_void() +
+    
+    theme(legend.position = "bottom")
   
   ggplotly(mp_map, tooltip="text")
 }
