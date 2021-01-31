@@ -32,7 +32,7 @@ Access the live dashboard at https://covid-19-data-portal-r.herokuapp.com/
 
 -   Open `DSCI_532_Group_12-R.Rproj` in RStudio
 -   Click `Yes` to install required libraries
--   Open `src\app.R`
+-   Open `app.R`
 -   Click `Source` button to execute the project
 
 ## License
