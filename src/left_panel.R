@@ -38,10 +38,14 @@ lp_create_chart <- function(daily_summary_report, c_type="Confirmed"){
 
 
   chart <- top30 %>% 
-    ggplot(aes(x = cases, y = reorder(Country_Region, cases), fill = cases)) + 
+    ggplot(aes(x = cases, y = reorder(Country_Region, cases), fill = cases, text=cases)) + 
     geom_bar(stat = "identity") + 
+    scale_fill_gradient(low = "yellow", high = "red")+
+    scale_x_continuous(labels=scales::label_number_si())+
     theme(axis.title.y=element_blank()) +
-    scale_fill_gradient(low = "yellow", high = "red")
+    theme(axis.title.x=element_blank()) +
+    theme(legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+    labs(x="", y="")
     ggplotly(chart)
 }
 
@@ -59,7 +63,7 @@ create_left_panel <- function(){
 
   left_panel <- htmlDiv(
     list(
-      dbcRow(dbcCol(htmlH1("Global Map"))),
+      dbcRow(dbcCol(htmlH1("Global"))),
       dbcRow(dbcCol(htmlDiv(
         list(
           dbcRow(dbcCol(dccDropdown(id="lp_c_type",
