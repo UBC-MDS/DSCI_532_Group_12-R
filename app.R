@@ -37,7 +37,7 @@ dbcRow(
        dbcCol(right_panel, width=3))
   
 ))
-  ,style = list('max-width' = '85%')))
+  ,style = list('max-width' = '95%')))
 
 # Callback Handling for Right Panel
 app$callback(list(
@@ -77,6 +77,6 @@ app$callback(
     }
 )
 
-#app$run_server(host = '127.0.0.1', debug = T) 
+app$run_server(host = '127.0.0.1', debug = T)
 
-app$run_server(host = '0.0.0.0') 
+# app$run_server(host = '0.0.0.0') 
