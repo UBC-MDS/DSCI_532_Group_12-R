@@ -46,7 +46,7 @@ lp_create_chart <- function(daily_summary_report, c_type="Confirmed"){
     theme(axis.title.x=element_blank()) +
     theme(legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
     labs(x="", y="")
-    ggplotly(chart)
+    ggplotly(chart) %>% layout(autosize = F, height = 700)
 }
 
 #' create mid panel component
